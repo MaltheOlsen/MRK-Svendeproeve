@@ -1,0 +1,45 @@
+---
+VMs:
+  children:
+    linux:
+      hosts:
+        DK-SVJ-01-MS-01:
+          ansible_host: 10.20.1.22
+        DK-SVJ-01-NI-03:
+          ansible_host: 10.20.1.40
+        DK-SVJ-01-MS-02:
+          ansible_host: 10.20.1.70
+        DK-SVJ-01-MS-03:
+          ansible_host: 10.20.1.71
+        DK-SVJ-01-MS-04:
+          ansible_host: 10.20.1.72
+        DK-SVJ-01-MS-05:
+          ansible_host: 10.20.1.31
+        DK-SVJ-01-NI-05:
+          ansible_host: 10.20.1.143
+          
+          
+    Windows:
+      hosts:
+        DK-SVJ-01-DC-01:
+          ansible_host: 10.20.1.53
+        DK-SVJ-01-NI-01:
+          ansible_host: 10.20.1.67
+        DK-SVJ-01-NI-02:
+          ansible_host: 10.20.1.99
+        DK-SVJ-01-NI-04:
+          ansible_host: 10.20.1.54
+    
+Proxmox:
+  hosts:
+    DK-SVJ-01-VH-01:
+      ansible_host: 10.20.1.11
+    DK-SVJ-01-VH-02:
+      ansible_host: 10.20.1.11
+    DK-SVJ-01-VH-03:
+      ansible_host: 10.20.1.11
+    DK-SVJ-01-BU-01:
+      ansible_host: 10.20.1.50
+    DK-SVJ-02-BU-01:
+      ansible_host: 10.21.1.50
+    
