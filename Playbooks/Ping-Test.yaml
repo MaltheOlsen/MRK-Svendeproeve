@@ -1,0 +1,13 @@
+---
+- name: Ping
+  hosts: "{{ host }},{{ host2 }},{{ host3}}"
+  gather_facts: true
+
+  tasks:
+    - name: Ping Windows hosts
+      ansible.windows.win_ping:
+      when: ansible_os_family == "Windows"
+      
+    - name: Ping Linux/Unix hosts
+      ping:
+      when: ansible_os_family != "Windows"
