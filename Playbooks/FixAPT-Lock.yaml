@@ -1,0 +1,85 @@
+---
+- name: Fix APT Lock and Perform System Upgrade
+  hosts: all:localhost
+  become: yes # This is crucial for running commands with root privileges
+
+  tasks:
+    - name: Pause for a few seconds (allow any quick processes to finish)
+      ansible.builtin.pause:
+        seconds: 5
+      # This is a small grace period, sometimes a quick apt process just needs a moment.
+
+    - name: Find processes holding /var/lib/dpkg/lock-frontend
+      ansible.builtin.shell: |
+        lsof /var/lib/dpkg/lock-frontend 2>/dev/null | awk 'NR>1 {print $2}'
+      register: dpkg_lock_pids
+      changed_when: false # This task doesn't change system state, just gathers info
+      failed_when: false # Don't fail if lsof returns nothing or an error
+
+    - name: Kill processes holding /var/lib/dpkg/lock-frontend
+      ansible.builtin.shell: "kill -9 {{ item }}"
+      with_items: "{{ dpkg_lock_pids.stdout_lines }}"
+      when: dpkg_lock_pids.stdout_lines | length > 0
+      ignore_errors: true # Continue even if a kill command fails (e.g., PID already gone)
+      # Using kill -9 for a more forceful termination if the process is truly stuck.
+
+    - name: Remove /var/lib/dpkg/lock-frontend if it exists
+      ansible.builtin.file:
+        path: /var/lib/dpkg/lock-frontend
+        state: absent
+      # This ensures the lock file is gone after attempting to kill processes.
+
+    - name: Find processes holding /var/lib/apt/lists/lock
+      ansible.builtin.shell: |
+        lsof /var/lib/apt/lists/lock 2>/dev/null | awk 'NR>1 {print $2}'
+      register: apt_lists_lock_pids
+      changed_when: false
+      failed_when: false
+
+    - name: Kill processes holding /var/lib/apt/lists/lock
+      ansible.builtin.shell: "kill -9 {{ item }}"
+      with_items: "{{ apt_lists_lock_pids.stdout_lines }}"
+      when: apt_lists_lock_pids.stdout_lines | length > 0
+      ignore_errors: true
+
+    - name: Remove /var/lib/apt/lists/lock if it exists
+      ansible.builtin.file:
+        path: /var/lib/apt/lists/lock
+        state: absent
+
+    - name: Find processes holding /var/cache/apt/archives/lock
+      ansible.builtin.shell: |
+        lsof /var/cache/apt/archives/lock 2>/dev/null | awk 'NR>1 {print $2}'
+      register: apt_archives_lock_pids
+      changed_when: false
+      failed_when: false
+
+    - name: Kill processes holding /var/cache/apt/archives/lock
+      ansible.builtin.shell: "kill -9 {{ item }}"
+      with_items: "{{ apt_archives_lock_pids.stdout_lines }}"
+      when: apt_archives_lock_pids.stdout_lines | length > 0
+      ignore_errors: true
+
+    - name: Remove /var/cache/apt/archives/lock if it exists
+      ansible.builtin.file:
+        path: /var/cache/apt/archives/lock
+        state: absent
+
+    - name: Fix APT install
+      ansible.builtin.command: apt --fix-broken install
+
+    - name: Reconfigure dpkg (in case of interrupted installations)
+      ansible.builtin.command: dpkg --configure -a
+      # This helps to fix any partially installed packages.
+
+    - name: Update APT package lists
+      ansible.builtin.apt:
+        update_cache: yes
+      # Refreshes the list of available packages.
+
+    - name: Perform APT distribution upgrade
+      ansible.builtin.apt:
+        upgrade: dist
+        autoclean: yes
+        autoremove: yes
+      # Upgrades all installed packages to their latest versions and cleans up.
