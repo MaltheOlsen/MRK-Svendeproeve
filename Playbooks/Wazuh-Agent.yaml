@@ -1,6 +1,6 @@
 ---
 - name: Install Wazuh Agent
-  hosts: linux:Proxmox:localhost:!wazuh
+  hosts: all:localhost:!DK-SVJ-01-MS-04
   become: yes
   vars:
     MANAGERIP: "{{ MANAGERIP }}"
