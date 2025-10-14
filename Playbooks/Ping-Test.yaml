@@ -1,6 +1,6 @@
 ---
 - name: Ping
-  hosts: "{{ host }},{{ host2 }},{{ host3}}"
+  hosts: all:localhost
   gather_facts: true
 
   tasks:
