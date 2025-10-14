@@ -10,9 +10,8 @@
 
     # >>> Tilføj alle subnets her <<<
     scan_network_ranges:
-      - "172.16.0.0/24"
-      - "172.16.10.0/24"
-      - "192.168.1.0/24"
+      - "10.20.1.0/24"
+      - "10.20.0.0/24"
 
   tasks:
     - name: Scan all networks for live hosts (single nmap run)
