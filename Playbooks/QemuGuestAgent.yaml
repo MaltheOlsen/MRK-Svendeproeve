@@ -11,9 +11,6 @@
         name: qemu-guest-agent
         state: present
       when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
-    - name: pause
-      pause:
-        seconds: 10
     - name: Start Qemu Guest Agent for Proxmox VM
       ansible.builtin.systemd:
         name: qemu-guest-agent
