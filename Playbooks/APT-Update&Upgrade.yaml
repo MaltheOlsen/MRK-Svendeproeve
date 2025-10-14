@@ -1,0 +1,22 @@
+---
+- name: Update and upgrade servers
+  hosts: linux:localhost:Proxmox
+  become: yes
+  tasks:
+    - name: Update apt
+      apt:
+        update_cache: yes
+      register: update_result
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+      register: upgrade_result
+
+    - name: Show update result
+      debug:
+        msg: "Update result: {{ update_result }}"
+
+    - name: Show upgrade result
+      debug:
+        msg: "Upgrade result: {{ upgrade_result }}"
