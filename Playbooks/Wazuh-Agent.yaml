@@ -47,6 +47,14 @@
             msg: "Failed to install Wazuh Agent. Please check the repository or installation process."
           when: install_result.rc != 0
 
+    - name: Ensure enrollment password file exists with correct content/permissions
+      ansible.builtin.copy:
+        dest: /var/ossec/etc/authd.pass
+        content: "MRK!2025\n"
+        owner: root
+        group: wazuh
+        mode: '0640'
+
     - name: Check if Wazuh Agent is running
       command: systemctl is-active wazuh-agent
       register: wazuh_agent_status
