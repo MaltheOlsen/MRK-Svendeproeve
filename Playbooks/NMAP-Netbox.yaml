@@ -4,7 +4,7 @@
   gather_facts: no
   vars:
     netbox_url: "https://netbox.fmmi.local/api/"
-    netbox_token: "c1fda850572c1fe314d59ac389b5c1fb75217141"
+    netbox_token: "fa58e384840473967a9fcce827c77901487916fa"
     scan_network_range: "10.20.0.0/23"
 
   tasks:
