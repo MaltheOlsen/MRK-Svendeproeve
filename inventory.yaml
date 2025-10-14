@@ -16,7 +16,7 @@ VMs:
         DK-SVJ-01-MS-05:
           ansible_host: 10.20.1.31
         DK-SVJ-01-NI-05:
-          ansible_host: 10.20.1.14
+          ansible_host: 10.20.1.143
     
 Proxmox:
   hosts:
