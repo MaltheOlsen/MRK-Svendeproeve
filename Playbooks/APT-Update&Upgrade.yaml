@@ -1,6 +1,6 @@
 ---
 - name: Update and upgrade servers
-  hosts: linux:localhost:Proxmox
+  hosts: all:localhost
   become: yes
   tasks:
     - name: Update apt
