@@ -1,0 +1,54 @@
+---
+- name: Scan network and add live IPs to NetBox
+  hosts: localhost
+  gather_facts: no
+  vars:
+    #netbox_url: "https://netbox.erichsolsen.dk/api/"
+    #netbox_token: "e326980467c2a9f892c38e4cbda2fa6c82284daf"
+    netbox_url: "https://ncwl5590.cloud.netboxapp.com/api/"
+    netbox_token: "321c917637151c9783465bc0ec6916b08c289a4a"
+    scan_network_range: "172.16.0.0/24"
+
+  tasks:
+
+    - name: Scan network for live hosts
+      ansible.builtin.command: "nmap -sn {{ scan_network_range }}"
+      register: nmap_output
+
+    - name: Extract IPs from nmap output
+      set_fact:
+        live_ips: >-
+          {{
+            nmap_output.stdout_lines
+            | select('search', '^Nmap scan report for')
+            | map('regex_search', '([0-9]{1,3}(?:\.[0-9]{1,3}){3})')
+            | list
+          }}
+
+
+    - name: Print live IPs
+      ansible.builtin.debug:
+        var: live_ips
+
+    - name: Add IPs to NetBox
+      vars:
+        ip_payload: |
+          {
+            "address": "{{ item }}/32"
+          }
+      uri:
+        url: "{{ netbox_url }}ipam/ip-addresses/"
+        method: POST
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+          Content-Type: "application/json"
+        body: "{{ ip_payload }}"
+        body_format: json
+        status_code: [201, 400]
+      loop: "{{ live_ips }}"
+      register: netbox_responses
+
+    - name: Show NetBox response summary
+      ansible.builtin.debug:
+        msg: "Added {{ item.item }} - Status: {{ item.status }}"
+      loop: "{{ netbox_responses.results }}"
