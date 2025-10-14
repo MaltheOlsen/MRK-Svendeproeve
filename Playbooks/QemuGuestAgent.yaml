@@ -1,6 +1,6 @@
 - name: Install Qemu Guest Agent
   become: yes
-  hosts: linux:localhost:pbs
+  hosts: linux:localhost
   gather_facts: true
   tasks:
     - name: Update all installed packages
