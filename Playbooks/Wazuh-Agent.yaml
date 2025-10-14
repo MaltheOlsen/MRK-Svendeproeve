@@ -1,0 +1,65 @@
+---
+- name: Install Wazuh Agent
+  hosts: linux:Proxmox:localhost:!wazuh
+  become: yes
+  vars:
+    MANAGERIP: "{{ MANAGERIP }}"
+    
+
+  tasks:
+    - name: Check if Wazuh Agent is already installed
+      shell: dpkg-query -W -f='${Status}' wazuh-agent | grep "install ok installed"
+      ignore_errors: true
+      register: wazuh_agent_installed
+
+    - name: Install Wazuh Agent if not installed
+      when: wazuh_agent_installed.rc != 0
+      block:
+        - name: Download Wazuh GPG key
+          ansible.builtin.get_url:
+            url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+            dest: /tmp/GPG-KEY-WAZUH
+            mode: '0644'
+
+        - name: Import Wazuh GPG key into keyring
+          ansible.builtin.shell: gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import /tmp/GPG-KEY-WAZUH
+          register: import_gpg_result
+
+        - name: Set permissions for Wazuh GPG keyring
+          ansible.builtin.file:
+            path: /usr/share/keyrings/wazuh.gpg
+            mode: '0644'
+
+        - name: Add Wazuh repository
+          shell: echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list
+          register: add_repo_result
+
+        - name: Update package list
+          shell: apt-get update
+          register: update_result
+
+        - name: Install Wazuh Agent
+          shell: WAZUH_MANAGER="{{ MANAGERIP }}" apt-get install -y wazuh-agent
+          register: install_result
+
+        - name: Verify Wazuh Agent installation
+          fail:
+            msg: "Failed to install Wazuh Agent. Please check the repository or installation process."
+          when: install_result.rc != 0
+
+    - name: Check if Wazuh Agent is running
+      command: systemctl is-active wazuh-agent
+      register: wazuh_agent_status
+      ignore_errors: true
+
+    - name: Enable Wazuh Agent if not running
+      command: systemctl enable wazuh-agent
+      when: wazuh_agent_status.stdout != "active"
+      ignore_errors: true
+
+    - name: Start Wazuh Agent if not running
+      command: systemctl start wazuh-agent
+      when: wazuh_agent_status.stdout != "active"
+      ignore_errors: true
+
+
