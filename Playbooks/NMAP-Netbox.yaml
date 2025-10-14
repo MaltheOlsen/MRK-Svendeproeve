@@ -1,14 +1,4 @@
 ---
-- name: Scan multiple networks and add live IPs to NetBox
-  hosts: localhost
-  gather_facts: no
-
-  vars:
-    # Sæt dine egne værdier / brug vault eller env vars i praksis
-    netbox_url: "https://10.20.1.143/api/"
-    netbox_token: "c1fda850572c1fe314d59ac389b5c1fb75217141"
-
-   ---
 - name: Scan network and add live IPs to NetBox
   hosts: localhost
   gather_facts: no
