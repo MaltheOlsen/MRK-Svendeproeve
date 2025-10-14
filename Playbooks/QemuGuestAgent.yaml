@@ -1,0 +1,23 @@
+- name: Install Qemu Guest Agent
+  become: yes
+  hosts: linux:localhost:pbs
+  gather_facts: true
+  tasks:
+    - name: Update all installed packages
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: Install Qemu Guest Agent on Proxmox VMs
+      ansible.builtin.apt:
+        name: qemu-guest-agent
+        state: present
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+    - name: pause
+      pause:
+        seconds: 10
+    - name: Start Qemu Guest Agent for Proxmox VM
+      ansible.builtin.systemd:
+        name: qemu-guest-agent
+        enabled: true
+        state: started
+        daemon_reload: yes
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
