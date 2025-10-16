@@ -1,0 +1,15 @@
+- name: Conditionally download and run GitHub creation script
+  hosts: '{{ Host }}'
+  gather_facts: false
+
+  tasks:
+    - name: Copy local script to remote
+      ansible.builtin.copy:
+        src: '{{ playbook_dir }}/../Scripts/Bash/{{ OS }}'
+        dest: /tmp/Create-VM.sh
+        mode: '0755'
+
+    - name: Creating '{{ VMCount }}' VMs on '{{ Node }}'
+      ansible.builtin.shell: "bash /tmp/Create-VM.sh {{ VMCount | default(1) }}"
+      args:
+        executable: /bin/bash
