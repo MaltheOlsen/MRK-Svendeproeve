@@ -5,7 +5,7 @@
   tasks:
     - name: Copy local script to remote
       ansible.builtin.copy:
-        src: '{{ playbook_dir }}/Playbooks/Scripts/{{ OS }}'
+        src: '{{ playbook_dir }}/Scripts/{{ OS }}'
         dest: /tmp/Create-VM.sh
         mode: '0755'
 
