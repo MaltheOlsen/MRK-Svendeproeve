@@ -1,7 +1,7 @@
 #!/bin/bash
 
 STORAGE="DK-SVJ-01-DS-02_Storage"
-DISK="Ubuntusrvssh"
+DISK="Ubuntusrv1"
 OVA_PATH="/mnt/pve/${STORAGE}/import/${DISK}.ova"
 count=${1:-1}
 
