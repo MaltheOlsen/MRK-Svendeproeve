@@ -1,6 +1,7 @@
 - name: Conditionally download and run GitHub creation script
   hosts: '{{ Host }}'
   gather_facts: false
+  become: yes
 
   tasks:
     - name: Copy local script to remote
