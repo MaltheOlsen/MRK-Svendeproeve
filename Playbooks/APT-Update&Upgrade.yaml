@@ -1,6 +1,6 @@
 ---
 - name: Update and upgrade servers
-  hosts: LINUX:localhost
+  hosts: linux:localhost
   become: yes
   tasks:
     - name: Update apt
