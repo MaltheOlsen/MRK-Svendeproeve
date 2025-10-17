@@ -1,6 +1,6 @@
 ---
 - name: Fix APT Lock and Perform System Upgrade
-  hosts: all:localhost
+  hosts: linux:localhost
   become: yes # This is crucial for running commands with root privileges
 
   tasks:
