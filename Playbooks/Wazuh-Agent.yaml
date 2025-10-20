@@ -1,10 +1,27 @@
 ---
-- name: Install Wazuh Agent
+- name: Install Wazuh Agent + enable auditd for whodata
   hosts: all:localhost:!DK-SVJ-01-MS-03:!DK-SVJ-01-MS-04:!DK-SVJ-01-MS-05
   become: yes
   vars:
     MANAGERIP: "{{ MANAGERIP }}"
-    
+
+  pre_tasks:
+    # ---- Auditd på Debian/Ubuntu ----
+    - name: Ensure auditd (and audispd-plugins) is installed on Debian/Ubuntu
+      ansible.builtin.apt:
+        name:
+          - auditd
+          - audispd-plugins
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Enable and start auditd
+      ansible.builtin.service:
+        name: auditd
+        state: started
+        enabled: yes
+      ignore_errors: true
 
   tasks:
     - name: Check if Wazuh Agent is already installed
@@ -22,7 +39,10 @@
             mode: '0644'
 
         - name: Import Wazuh GPG key into keyring
-          ansible.builtin.shell: gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import /tmp/GPG-KEY-WAZUH
+          ansible.builtin.shell: >
+            gpg --no-default-keyring
+            --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg
+            --import /tmp/GPG-KEY-WAZUH
           register: import_gpg_result
 
         - name: Set permissions for Wazuh GPG keyring
@@ -69,5 +89,3 @@
       command: systemctl start wazuh-agent
       when: wazuh_agent_status.stdout != "active"
       ignore_errors: true
-
-
