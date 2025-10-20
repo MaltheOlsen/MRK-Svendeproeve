@@ -1,6 +1,6 @@
 ---
 - name: Install Wazuh Agent + enable auditd for whodata
-  hosts: all:localhost:!DK-SVJ-01-MS-03:!DK-SVJ-01-MS-04:!DK-SVJ-01-MS-05:!proxmox
+  hosts: all:localhost:!DK-SVJ-01-MS-03:!DK-SVJ-01-MS-04:!DK-SVJ-01-MS-05:!Proxmox
   become: yes
   vars:
     MANAGERIP: "{{ MANAGERIP }}"
